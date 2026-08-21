@@ -242,9 +242,9 @@ existing at all.
 
 ## Where each project's full write-up lives
 
-- **Time-series forecasting**: [github.com/lordadrianbold/ts-forecast-project](https://github.com/lordadrianbold/ts-forecast-project)
-- **Credit risk classification**: [github.com/lordadrianbold/credit-risk-project](https://github.com/lordadrianbold/credit-risk-project)
-- **GL anomaly detection**: [github.com/lordadrianbold/gl-anomaly-project](https://github.com/lordadrianbold/gl-anomaly-project)
+- **Time-series forecasting**: [github.com/lordadrianbold/ts-forecast-project]([https://github.com/lordadrianbold/ts-forecast-project](https://github.com/lordadrianbold/time-series-forecast-project))
+- **Credit risk classification**: [github.com/lordadrianbold/credit-risk-project]([https://github.com/lordadrianbold/credit-risk-project](https://github.com/lordadrianbold/credit-risk-project))
+- **GL anomaly detection**: [github.com/lordadrianbold/gl-anomaly-project](- **GL anomaly detection**: [github.com/lordadrianbold/gl-anomaly-project]((https://github.com/lordadrianbold/gl-anamoly-project)](https://github.com/lordadrianbold/gl-anamoly-project))
 - **Financial NLP**: [github.com/lordadrianbold/financial-nlp-project](https://github.com/lordadrianbold/financial-nlp-project)
 
 *(Double-check these URLs match your actual repo names exactly — GitHub
