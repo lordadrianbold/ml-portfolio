@@ -243,7 +243,7 @@ existing at all.
 ## Where each project's full write-up lives
 
 - **Time-series forecasting**: [github.com/lordadrianbold/ts-forecast-project]([https://github.com/lordadrianbold/ts-forecast-project](https://github.com/lordadrianbold/time-series-forecast-project))
-- **Credit risk classification**: [github.com/lordadrianbold/credit-risk-project]([https://github.com/lordadrianbold/credit-risk-project](https://github.com/lordadrianbold/credit-risk-project))
+- **Credit risk classification**: [[github.com/lordadrianbold/credit-risk-project]([https://github.com/lordadrianbold/credit-risk-project](https://github.com/lordadrianbold/credit-risk-project))](https://github.com/lordadrianbold/credit-risk-project)
 - **GL anomaly detection**: https://github.com/lordadrianbold/gl-anamoly-project 
 - **Financial NLP**: [github.com/lordadrianbold/financial-nlp-project](https://github.com/lordadrianbold/financial-nlp-project)
 
