@@ -1,118 +1,116 @@
 # ML Engineering Portfolio — Summary
 
-Four end-to-end projects, each covering a different core ML problem
+Five end-to-end projects, each covering a different core ML problem
 type, all deployed and verified live on AWS (not just locally). Built to
 demonstrate breadth (supervised classification, time-series forecasting,
-unsupervised anomaly detection, NLP) plus the deployment/production
-skills that separate an ML engineer from someone who only builds
-notebooks.
+unsupervised anomaly detection, NLP, and retrieval-augmented agents)
+plus the deployment/production skills that separate an ML engineer from
+someone who only builds notebooks.
+
+The fifth project specifically closes a real, current market gap:
+current ML engineering hiring data shows RAG, vector databases, and
+agent orchestration frameworks (LangChain/LangGraph) as the highest-
+premium skill cluster — verified via direct market research, not
+assumed — and none of the first four projects touch them directly.
 
 ---
 
-## The four projects at a glance
+## The five projects at a glance
 
-| | Time-Series Forecasting | Credit Risk Classification | GL Anomaly Detection | Financial NLP |
-|---|---|---|---|---|
-| **Problem type** | Regression / forecasting | Supervised classification (imbalanced) | Unsupervised anomaly detection | NLP: sentiment classification + real-world signal test |
-| **Data** | Apple's real SEC filings (35 quarters) | Real Lending Club data (1.05M rows, 425K resolved) | Synthetic GL data (20K entries, statistically verified against Benford's Law) | Financial PhraseBank (2,264 real sentences) + Apple's real 10-K filings (2015-2025) |
-| **Models compared** | Seasonal naive, SARIMA, Prophet, XGBoost, LSTM | Logistic regression, Random Forest, XGBoost (class-weighted + SMOTE) | Isolation Forest, autoencoder, 2 ensemble variants | TF-IDF+LogReg, FinBERT (zero-shot), DistilBERT (fine-tuned) |
-| **Core finding** | Simpler models with explicit seasonal structure beat flexible/deep models on small data | Class weighting beats SMOTE; XGBoost wins on PR-AUC | A hypothesis was tested and refuted — models have complementary, mechanistically-explained strengths | A hypothesis was tested and completely confirmed (15/15); a "strong" real-world correlation was shown to be statistically fragile via leave-one-out analysis |
-| **Deployment** | ECS Fargate batch task + FastAPI/Streamlit (Docker-tested) | ECS Fargate batch task, 525MB S3 data pipeline | ECS Fargate batch task, self-contained (generates own data) | ECS Fargate, 4 separate sub-pipeline task runs, cross-project S3 dependency |
-| **Real bugs found & fixed** | `uvicorn` import path gotcha, container filesystem isolation, S3 client timeout | Windows/Linux case-sensitivity, stale Docker CMD, IAM role mixup, missing log group permission | Same case-sensitivity/CMD lessons applied *proactively*; stale local files caught via S3 path verification | Broken/deprecated public dataset infrastructure (3 layers deep), a fiscal-year calculation bug caught before it corrupted results, a slow Docker build diagnosed and fixed, a transient ECR pull failure, a Windows shell-escaping problem |
+| | Time-Series Forecasting | Credit Risk Classification | GL Anomaly Detection | Financial NLP | Financial RAG Agent |
+|---|---|---|---|---|---|
+| **Problem type** | Regression / forecasting | Supervised classification (imbalanced) | Unsupervised anomaly detection | NLP: sentiment classification + real-world signal test | Retrieval-augmented generation + agentic tool use |
+| **Data** | Apple's real SEC filings (35 quarters) | Real Lending Club data (1.05M rows, 425K resolved) | Synthetic GL data (20K entries, statistically verified against Benford's Law) | Financial PhraseBank (2,264 real sentences) + Apple's real 10-K filings (2015-2025) | 19 real 10-K filings across Apple, Microsoft, JPMorgan Chase |
+| **Core technique** | SARIMA, Prophet, XGBoost, LSTM | Logistic regression, Random Forest, XGBoost (class-weighted + SMOTE) | Isolation Forest, autoencoder | TF-IDF+LogReg, FinBERT (zero-shot), DistilBERT (fine-tuned) | ChromaDB + sentence-transformers retrieval, LangChain `create_agent()`, Claude Haiku 4.5 |
+| **Core finding** | Simpler models with explicit seasonal structure beat flexible/deep models on small data | Class weighting beats SMOTE; XGBoost wins on PR-AUC | A hypothesis was tested and refuted — models have complementary, mechanistically-explained strengths | A hypothesis was tested and completely confirmed (15/15); a "strong" real-world correlation was shown to be statistically fragile via leave-one-out analysis | 100% agent routing accuracy including 2 deliberately adversarial "trap" questions; a mechanical groundedness check found and precisely explained a real, bounded hallucination |
+| **Deployment** | ECS Fargate batch task + FastAPI/Streamlit (Docker-tested) | ECS Fargate batch task, 525MB S3 data pipeline | ECS Fargate batch task, self-contained (generates own data) | ECS Fargate, 4 separate sub-pipeline task runs, cross-project S3 dependency | **A genuine live ECS Service** (not a batch task) — first project in this portfolio with real inbound networking and a real managed secret |
+| **Real bugs found & fixed** | `uvicorn` import path gotcha, container filesystem isolation, S3 client timeout | Windows/Linux case-sensitivity, stale Docker CMD, IAM role mixup, missing log group permission | Same case-sensitivity/CMD lessons applied *proactively*; stale local files caught via S3 path verification | Broken/deprecated public dataset infrastructure (3 layers deep), a fiscal-year calculation bug, a slow Docker build diagnosed and fixed | 4 distinct real HTML parsing bugs, a silently-wrong extraction caught only by manual verification, and 5 distinct deployment/IAM/networking issues in a single live deployment session |
 
 ---
 
 ## What this portfolio actually demonstrates
 
-**Breadth across ML problem types.** Not four variations on the same
-technique — a genuine regression/forecasting problem, a genuine
-imbalanced classification problem, a genuine unsupervised problem with
-no labels at training time, and a genuine NLP problem spanning classical
-ML, zero-shot and fine-tuned transformers. Each required different
-modeling approaches, different evaluation metrics (MAPE vs.
-precision/recall/PR-AUC vs. ROC-AUC/top-K precision vs. per-class F1),
-and different interpretation techniques (confidence intervals vs. SHAP
-vs. z-score deviation explanations vs. linear model coefficients).
+**Breadth across ML problem types.** A genuine regression/forecasting
+problem, a genuine imbalanced classification problem, a genuine
+unsupervised problem with no labels at training time, a genuine NLP
+problem spanning classical ML through fine-tuned transformers, and now
+a genuine retrieval-augmented agentic system — five different core
+techniques, five different evaluation approaches, not five variations
+on the same idea.
 
-**Rigor that goes beyond running a model.** Every project includes:
-- A **specific, falsifiable hypothesis tested against real evidence** —
-  not just "I tried X and it worked." The forecasting project predicted
-  and confirmed that flexible models would underperform on small data.
-  The anomaly project predicted an autoencoder would fix Isolation
-  Forest's weak spot — and was *wrong*, which led to a deeper,
-  mechanistically-verified understanding than confirmation would have.
-  The NLP project predicted a transformer would fix a specific TF-IDF
-  failure pattern — and was *completely right*, confirmed 15/15 against
-  the exact sentences that motivated the hypothesis.
-- **Real production bugs, found and fixed with direct evidence**, not
-  glossed over. The case-sensitivity bug (Windows vs. Linux filesystems),
-  the IAM role-vs-execution-role mixup, the S3 prefix bug that got
-  progressively better across the first three projects (documented as a
-  known limitation in project 1, still unresolved in project 2, and
-  *actually fixed* by project 3, then built correctly from the start in
-  project 4) — this shows learning compounding across the whole
-  portfolio, not four isolated exercises.
-- **Honest limitations, stated plainly.** SARIMA's undershoot bias.
-  The credit-risk project's incomplete leakage-column audit on a
-  145-column real dataset. The anomaly project's own interpretability
-  tool producing a technically-correct-but-misleading explanation
-  (caught by actually reading the output, not just generating it). The
-  NLP project's real-world correlation (r=-0.728) shown via leave-one-out
-  analysis to be driven almost entirely by a single extraordinary year
-  — reported as "too small a sample to draw a reliable conclusion,"
-  not oversold as a discovered signal.
+**A portfolio that responds to real market signal, not just personal
+interest.** The fifth project exists specifically because live research
+into current ML hiring data showed RAG/agent skills carrying the
+highest wage premium of any specific technical cluster — the project
+was scoped, architected, and built directly in response to that
+finding, including verifying framework choices (like LangChain's
+`create_agent()`, confirmed as the current v1.0-era idiomatic approach
+rather than the now-deprecated `AgentExecutor` pattern) against the
+actual installed library version rather than trusting possibly-stale
+training knowledge.
 
-**Real deployment experience, not "should work in theory."** All four
-run live on AWS ECS Fargate, verified via actual CloudWatch logs and S3
-listings — not just a clean exit code, which was directly proven
-insufficient partway through this work (a silently-stale Docker image
-exited cleanly while running an outdated, incomplete pipeline). The
-fourth project's deployment surfaced a genuinely new class of real
-issues — a slow Docker build correctly diagnosed to its root cause, a
-confusing AWS task-visibility mystery worked through systematically
-rather than guessed at, a transient infrastructure failure correctly
-distinguished from a real one, and a Windows-specific shell-escaping
-problem solved by removing the fragility entirely rather than fighting
-it.
+**Rigor that goes beyond running a model.** Every project includes a
+specific, falsifiable hypothesis tested against real evidence, real
+production bugs found and fixed with direct evidence, and honest
+limitations stated plainly rather than glossed over. The fifth project
+adds a genuinely new form of rigor: **mechanical, not eyeballed,
+verification of LLM output** — a real, automated groundedness checker
+that extracts every quoted claim from a generated answer and verifies
+it against real source text, escalating through multiple hypotheses
+when a check failed, rather than accepting a plausible-looking answer
+at face value.
+
+**Real deployment experience, including a genuinely new class of
+problem.** All five projects run live on AWS, verified via actual
+CloudWatch logs and direct file/S3 checks — never trusted from a clean
+exit code alone. The fifth project's deployment was categorically
+different from the first four: a live, continuously-running *service*
+(not a batch job) needing real inbound networking and a real managed
+secret for the first time in this portfolio, surfacing five genuinely
+distinct infrastructure issues in a single deployment session — a
+secrets-management gap, two separate IAM identities needing separate
+permission grants, a permission change that silently failed to apply
+(caught only by verifying via CLI rather than trusting the console), a
+cross-platform tooling gap (`.sh` scripts don't run natively on
+Windows), and a networking gap (the service landed on the VPC's default
+security group, which has no public inbound rule at all) — each
+diagnosed with direct evidence, not guesswork.
 
 ---
 
 ## Resume bullets (pick and adapt per application)
 
-- Built and deployed four end-to-end ML pipelines (time-series
+- Built and deployed five end-to-end ML pipelines (time-series
   forecasting, imbalanced classification, unsupervised anomaly
-  detection, NLP sentiment analysis) on real and realistic data, each
-  containerized with Docker and deployed live on AWS ECS Fargate with
-  S3-backed output storage.
+  detection, NLP sentiment analysis, and a retrieval-augmented agentic
+  system) on real and realistic data, each containerized with Docker
+  and deployed live on AWS (ECS Fargate batch tasks and a live ECS
+  Service) with S3-backed output storage.
+- Built a retrieval-augmented generation system and LangChain-based
+  agent (`create_agent()`) with three distinct tools (single-company
+  search, cross-company comparison, real financial data lookup) over
+  real SEC 10-K filings, achieving 100% agent tool-routing accuracy on
+  a held-out test set including deliberately adversarial questions
+  designed to test genuine reasoning over surface keyword matching.
+- Designed and implemented a mechanical groundedness verification
+  system for LLM-generated financial answers — automatically extracting
+  and validating every quoted claim against real source text, precisely
+  diagnosing failure causes (encoding artifacts, grammatical
+  conventions, real cross-year wording differences, and one genuine,
+  bounded hallucination) rather than relying on manual review alone.
+- Diagnosed and resolved real production deployment issues across five
+  projects, including a cross-platform file-casing bug, IAM role
+  misconfigurations, a silently-incomplete containerized pipeline, and
+  — deploying this portfolio's first live, continuously-running web
+  service — a secrets-management gap, cross-identity IAM permission
+  issues, and a networking/security-group misconfiguration, each
+  verified fixed using direct AWS CLI evidence rather than assuming
+  success.
 - Compared 5+ modeling approaches per project with rigorous, metric-
   appropriate evaluation (MAPE, PR-AUC, ROC-AUC, top-K precision, per-
-  class F1); diagnosed and explained *why* each model won or lost using
-  direct statistical evidence (z-scores, calibration checks, per-
-  category recall breakdowns, leave-one-out sensitivity analysis) rather
-  than reporting metrics alone.
-- Diagnosed and resolved real production deployment issues including a
-  cross-platform file-casing bug, an IAM role misconfiguration, a
-  silently-incomplete containerized pipeline, a mis-configured Docker
-  build causing 30+ minute build times, and transient cloud
-  infrastructure failures — verified fixes using direct AWS CLI evidence
-  (CloudWatch logs, S3 listings) rather than assuming success from a
-  clean exit code.
-- Built a financial sentiment pipeline spanning classical ML (TF-IDF) to
-  zero-shot and fine-tuned transformer models (FinBERT, DistilBERT),
-  including real SEC EDGAR data extraction across a decade of
-  inconsistently-formatted filings, and a statistically rigorous
-  real-world signal test (Pearson correlation + leave-one-out
-  sensitivity analysis) against actual company financial data.
-- Built a synthetic data generator for general ledger anomaly detection
-  with six distinct, realistic fraud/error patterns, statistically
-  validated against Benford's Law before use — enabling rigorous
-  quantitative evaluation of unsupervised models against ground truth,
-  which is normally unavailable in real anomaly detection.
-- Engineered a full credit risk pipeline on 1M+ real loan records,
-  correctly excluding 14+ leakage columns, handling class imbalance via
-  weighted vs. SMOTE comparison, and delivering a cost-justified
-  decision threshold (not just a default 0.5 cutoff) based on stated
-  business assumptions.
+  class F1, retrieval accuracy, agent routing accuracy); diagnosed and
+  explained *why* each approach won or lost using direct statistical
+  and mechanistic evidence rather than reporting metrics alone.
 
 ---
 
@@ -121,122 +119,102 @@ it.
 ### "Tell me about a time you found a bug in production"
 *The stale-Dockerfile bug (credit-risk project).* After adding three new
 model scripts, the container kept exiting cleanly with code 0 —
-seemingly successful. But comparing CloudWatch logs across two runs
-showed they stopped at the *exact same point* every time, regardless of
-a memory increase from 8GB to 16GB (initially suspected as an
-out-of-memory kill). That non-result — memory doubling changed nothing
-about *where* it failed — was the actual clue: it ruled out OOM and
-pointed toward a static, code-level cause. Checked the local Dockerfile
-directly and found it still only ran the original 4-script pipeline; the
-new scripts were never being invoked at all. Fixed it, then hit a
-second, subtler bug from the same root cause (Windows/Linux file-casing
-mismatch, invisible locally, breaking immediately in a case-sensitive
-container) — good story about testing a wrong hypothesis rigorously
-enough to *learn* from its failure, not just move to the next guess.
+seemingly successful. Comparing CloudWatch logs across two runs showed
+they stopped at the *exact same point* every time, regardless of a
+memory increase from 8GB to 16GB — that non-result was the actual clue,
+ruling out OOM and pointing toward a static, code-level cause. The
+local Dockerfile still only ran the original 4-script pipeline.
 
 ### "Tell me about a hypothesis that didn't pan out"
 *The autoencoder vs. Isolation Forest test (anomaly detection project).*
-After finding Isolation Forest struggled on one anomaly type
-(`unusual_pair`) because its signal was diluted across many
-uninformative features, predicted an autoencoder — which reconstructs
-all features jointly — would handle it better. It didn't; it did worse.
-Rather than treat that as a dead end, investigated why with direct
-measurements: confirmed the two models' rare correct catches were
-literally the same entries, not complementary ones, and quantified that
-`unusual_pair`'s statistical signal (-2.1 std devs) was categorically
-weaker than the signal driving the autoencoder's other successes (e.g.
-`rare_user` at -37.4 std devs). That refutation led to a specific,
-actionable recommendation — this anomaly type needs a dedicated rule,
-not a better general-purpose model — that a confirmed hypothesis
-wouldn't have produced.
+Predicted an autoencoder would fix Isolation Forest's weak spot on one
+anomaly type — it did worse. Investigated directly rather than treating
+it as a dead end: confirmed the two models' rare correct catches were
+literally the same entries, and quantified that the weak anomaly type's
+statistical signal was categorically weaker than what drove the
+autoencoder's actual successes — a specific, actionable finding a
+confirmed hypothesis wouldn't have produced.
 
 ### "Tell me about a hypothesis that turned out to be right"
 *The transformer vs. TF-IDF test (financial NLP project).* A TF-IDF
-sentiment baseline systematically misclassified plain factual sentences
-reporting financial figures ("net sales were EUR 39.2 million") as
-positive — no evaluative language present, just a spurious correlation
-between financial vocabulary and positive sentiment. Hypothesized that a
-transformer, capable of weighing full sentence context rather than a
-largely bag-of-words treatment, would resolve this specific failure
-mode. Rather than just compare aggregate accuracy, re-ran the exact same
-15 sentences through the fine-tuned model directly — all 15 were
-correctly reclassified. A clean, complete confirmation is just as
-valuable a story as a refutation, as long as it's tested precisely
-rather than just assumed from an overall accuracy improvement.
+baseline systematically misclassified plain factual financial sentences
+as positive. Hypothesized a transformer's context-awareness would fix
+this specific failure mode — re-ran the exact same 15 failing sentences
+through the fine-tuned model directly: all 15 were corrected.
 
 ### "Tell me about validating a business signal you found"
-*The sentiment-vs-revenue correlation (financial NLP project).* After
-scoring a decade of Apple's real 10-K Risk Factors sections with FinBERT
-and testing the sentiment trend against real revenue growth, a strong
-lagged correlation appeared (r=-0.728) — but with only 7 data points, a
-single unusual year could easily be driving it. Ran a leave-one-out
-sensitivity analysis: excluding one specific fiscal year alone dropped
-the correlation to near zero (r=-0.057), while excluding a different
-year pushed it to statistical significance (r=-0.893, p=0.017). That
-instability — the reported result swinging from "no relationship" to
-"significant" depending on which single point you removed — was itself
-the real finding: the correlation is real, but the sample is too small
-to trust as a discovered signal. Reporting that honestly, rather than
-citing whichever exclusion looked best, is the difference between doing
-statistics and doing statistics correctly.
-
-### "How do you handle imbalanced data?"
-*Credit risk project.* Compared class-weighting against SMOTE
-oversampling on both Random Forest and XGBoost, rather than defaulting
-to one. Class weighting won consistently on both models — a real,
-reproducible finding, not a coin flip — and reported *why* it's the
-more defensible default in future write-ups rather than treating SMOTE
-as the assumed-correct answer.
-
-### "Walk me through choosing a decision threshold"
-*Credit risk project.* Rejected the default 0.5 cutoff and instead
-computed actual confusion-matrix costs across a threshold grid, given a
-stated assumption (missing a default costs 5x a wrongly-rejected good
-loan). Caught and fixed a subtler bug along the way — an earlier
-approximation-based cost formula degenerated to a nonsensical extreme
-threshold, only caught by actually running it, not by inspection.
-
-### "Tell me about validating your own tooling, not just trusting it"
-*Anomaly detection project.* Building a per-entry SHAP-style explanation
-tool, noticed two flagged "round-dollar fraud" entries were explained
-primarily by an unrelated feature (`duplicate_count`). Investigated
-directly rather than assuming the explanation was simply wrong: found a
-genuine, low-probability coincidental data collision (two entries
-sharing the same amount/account/user by chance, in a combinatorial space
-of only 528 possibilities for 80 draws). The explanation was technically
-accurate but could easily mislead a reader without that context —
-documented it rather than letting the tool's output stand unexamined.
+*The sentiment-vs-revenue correlation (financial NLP project).* A
+strong lagged correlation (r=-0.728) between filing sentiment and real
+revenue growth appeared — with only 7 data points. A leave-one-out
+sensitivity analysis showed excluding one specific fiscal year dropped
+the correlation to near zero, while excluding a different year pushed
+it to statistical significance — that instability was itself the real
+finding: too small a sample to trust as a discovered signal, reported
+honestly rather than citing whichever exclusion looked best.
 
 ### "Tell me about debugging something you couldn't reproduce"
 *The AWS task-visibility mystery (financial NLP project).* A live ECS
-task launched successfully (a real task ARN, no launch errors), but
-subsequently could not be found through five independent verification
-methods — direct task lookup, task listing filtered by RUNNING, by
-STOPPED, with no filter at all, and even the AWS Console UI directly.
-Rather than keep guessing at increasingly obscure explanations,
-relaunched the identical task and monitored it in real time, checking
-every 15-20 seconds instead of waiting minutes between checks — the
-second attempt succeeded cleanly and was caught immediately, strongly
-suggesting the first likely also succeeded but was missed to an AWS-side
-indexing delay during an extended troubleshooting window rather than a
-real infrastructure fault. Knowing when a mystery has enough evidence to
-stop chasing and move forward — rather than needing a fully closed
-explanation for every anomaly — is its own kind of engineering judgment.
+task launched successfully but couldn't be found through five
+independent verification methods. Rather than keep guessing,
+relaunched the identical task and monitored it in real time — the
+second attempt succeeded and was caught immediately, suggesting the
+first likely also succeeded but was missed to an AWS-side indexing
+delay, not a real infrastructure fault.
+
+### "Tell me about building an agent, not just a chatbot"
+*The financial RAG agent's tool-routing evaluation.* Built three tools
+(single-company search, cross-company comparison, revenue lookup) and
+tested routing with 9 questions — including two deliberate traps: one
+containing the word "compare" while naming only one real company (which
+should NOT trigger the comparison tool), and one asking about revenue
+for a company with no loaded data (which SHOULD still route to the
+revenue tool, which then honestly reports no data rather than
+fabricating a number). 100% routing accuracy on both traps specifically
+— real evidence the agent reasons about tool constraints, not just
+keyword-matches.
+
+### "Tell me about verifying an LLM's output wasn't hallucinating"
+*The RAG agent's groundedness investigation.* Real generated answers
+relied heavily on direct quotation, enabling a genuinely mechanical
+check: extract every quoted claim, verify it's a real substring of its
+cited source. 5 of 9 initial quotes failed a strict check — rather than
+accepting or dismissing that at face value, investigated through four
+escalating, evidence-confirmed hypotheses (character-encoding
+artifacts, a grammatical capitalization convention, a real wording
+difference between two actual filing years, and cross-checking whether
+a failing quote existed in a *different* retrieved source than the one
+cited). Final result: 8 of 9 fully vindicated as genuine; 1 of 9 was a
+real, bounded hallucination — precisely diagnosed and directly addressed
+in the system prompt, rather than either ignored or overstated as a
+systemic failure.
+
+### "Tell me about a deployment that didn't go smoothly"
+*The financial RAG agent's live ECS Service deployment.* Five genuinely
+distinct issues in one deployment session, each diagnosed with direct
+CLI evidence rather than guesswork: a secrets-management gap (the first
+real credential anywhere in this portfolio, requiring AWS Systems
+Manager Parameter Store rather than a plain environment variable), two
+separate IAM identities each needing their own distinct permission
+grant, a permission change that silently didn't apply the first time
+(caught only by verifying via `aws iam list-attached-role-policies`
+directly rather than trusting the console's confirmation), a
+cross-platform tooling gap (`.sh` scripts don't execute natively on
+Windows — worked around by running the exact same underlying `aws`
+commands the scripts wrapped), and a networking gap (the service landed
+on the VPC's default security group by omission, which permits no
+public inbound traffic at all — identified by checking the *actual*
+security group attached to the running task's network interface, not
+assuming it was whichever one had been edited earlier for a different
+purpose). Final result: a real HTTP request, from a local machine, over
+the internet, correctly answered by a live container on AWS.
 
 ### "Tell me about relying on a public dataset or library that turned out to be broken"
 *Financial PhraseBank loading (financial NLP project).* The commonly
-documented way to load this well-known academic sentiment benchmark is
-fully broken — the short dataset identifier used in most tutorials
-404s, and even the correct identifier fails via the standard library
-call because the dataset repository still contains a deprecated legacy
-loading script. A promising-looking fix based on search results (a
-Parquet-converted version of the same repo) turned out to be based on
-stale information once checked directly against the repo's actual
-current file listing. Resolved by bypassing the fragile library
-abstraction entirely — downloading and parsing the raw source file
-directly — which also turned out to be a more durable fix long-term,
-since it no longer depends on that library's script-execution support
-existing at all.
+documented way to load this benchmark is fully broken. Resolved by
+bypassing the fragile library abstraction entirely — downloading and
+parsing the raw source file directly — also a more durable fix
+long-term, since it no longer depends on deprecated script-execution
+support existing at all.
 
 ---
 
@@ -246,10 +224,9 @@ existing at all.
 - **Credit risk classification**: [github.com/lordadrianbold/credit-risk-project](https://github.com/lordadrianbold/credit-risk-project)
 - **GL anomaly detection**: [github.com/lordadrianbold/gl-anomaly-project](https://github.com/lordadrianbold/gl-anomaly-project)
 - **Financial NLP**: [github.com/lordadrianbold/financial-nlp-project](https://github.com/lordadrianbold/financial-nlp-project)
+- **Financial RAG Agent**: [github.com/lordadrianbold/financial-rag-agent](https://github.com/lordadrianbold/financial-rag-agent)
 
-*(Double-check these URLs match your actual repo names exactly — GitHub
-usernames/repo names are case-sensitive in the sense that a typo won't
-resolve, even though GitHub itself lowercases display.)*
+*(Double-check these URLs match your actual repo names exactly.)*
 
 Each project's `notes.md` is the detailed, week-by-week technical record;
 each `README.md` is the front-door summary a reviewer sees first.
