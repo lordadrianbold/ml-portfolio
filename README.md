@@ -220,9 +220,9 @@ support existing at all.
 
 ## Where each project's full write-up lives
 
-- **Time-series forecasting**: [github.com/lordadrianbold/ts-forecast-project](https://github.com/lordadrianbold/ts-forecast-project)
-- **Credit risk classification**: [github.com/lordadrianbold/credit-risk-project](https://github.com/lordadrianbold/credit-risk-project)
-- **GL anomaly detection**: [github.com/lordadrianbold/gl-anomaly-project](https://github.com/lordadrianbold/gl-anomaly-project)
+- **Time-series forecasting**: https://github.com/lordadrianbold/time-series-forecast-project 
+- **Credit risk classification**: https://github.com/lordadrianbold/credit-risk-project 
+- **GL anomaly detection**: https://github.com/lordadrianbold/gl-anamoly-project 
 - **Financial NLP**: [github.com/lordadrianbold/financial-nlp-project](https://github.com/lordadrianbold/financial-nlp-project)
 - **Financial RAG Agent**: [github.com/lordadrianbold/financial-rag-agent](https://github.com/lordadrianbold/financial-rag-agent)
 
