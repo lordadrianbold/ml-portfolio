@@ -1,19 +1,21 @@
 # ML & AI Engineering Portfolio — Summary
 
-This portfolio has seven end-to-end projects. Five are core ML
-projects. Two are newer AI Engineering projects.
+This portfolio has ten end-to-end projects. Five are core ML projects.
+Five are AI Engineering projects.
 
 Together they cover supervised classification, time-series
 forecasting, unsupervised anomaly detection, NLP, retrieval-augmented
-agents, structured-output reliability engineering, and multi-agent
-orchestration. Every project was deployed and verified, not just
-built and left in a notebook.
+agents, structured-output reliability engineering, multi-agent
+orchestration, systematic evaluation/guardrails, fine-tuning, and
+multimodal vision-direct extraction. Every project was deployed and
+verified, not just built and left in a notebook.
 
-The two AI Engineering projects close a real, current market gap.
+The five AI Engineering projects close a real, current market gap.
 Live research into current hiring data showed RAG, vector databases,
-agent orchestration, and structured-output reliability engineering as
-the highest-premium skill cluster. This was verified directly, not
-assumed. None of the five original ML projects touch these skills.
+agent orchestration, structured-output reliability engineering,
+systematic evaluation, and fine-tuning as the highest-premium skill
+cluster. This was verified directly, not assumed. None of the five
+original ML projects touch these skills.
 
 ---
 
@@ -28,16 +30,16 @@ assumed. None of the five original ML projects touch these skills.
 | **Deployment** | ECS Fargate batch task + FastAPI/Streamlit (Docker-tested) | ECS Fargate batch task, 525MB S3 data pipeline | ECS Fargate batch task, self-contained (generates own data) | ECS Fargate, 4 separate sub-pipeline task runs, cross-project S3 dependency | A live ECS Service. First project with real inbound networking and a real managed secret |
 | **Real bugs found & fixed** | `uvicorn` import path gotcha, container filesystem isolation, S3 client timeout | Windows/Linux case-sensitivity, stale Docker CMD, IAM role mixup, missing log group permission | Same case-sensitivity/CMD lessons applied proactively. Stale local files caught via S3 path verification | Broken/deprecated public dataset infrastructure (3 layers deep), a fiscal-year calculation bug, a slow Docker build diagnosed and fixed | 4 distinct real HTML parsing bugs, a silently-wrong extraction caught only by manual verification, and 5 distinct deployment/IAM/networking issues in a single live deployment session |
 
-## The two AI Engineering projects at a glance
+## The five AI Engineering projects at a glance
 
-| | Financial Doc Extraction | Month-End Close Assistant |
-|---|---|---|
-| **Problem type** | Structured extraction + output reliability engineering | Multi-agent orchestration |
-| **Data** | 987 real SROIE receipts (ICDAR 2019) + 160 synthetic B2B invoices | Multi-month synthetic account balances, randomized realistic anomalies |
-| **Core technique** | LangChain structured output (function calling). A 4-signal reliability system: reconciliation, field plausibility, semantic similarity, header validation | LangGraph `StateGraph` directly. 5 specialized agents, including a real parallel fan-out |
-| **Core finding** | 7 distinct reliability blind spots found and fixed through direct investigation, not designed correctly upfront. Final result (100% precision on "trust this" predictions) confirmed to generalize on a genuinely fresh holdout set | 100% accuracy on every real anomaly type, confirmed on two independent holdout runs. A real model fabrication was caught by an independent validator, after a prompt-only fix was tested and found insufficient |
-| **Deployment** | A live ECS Service, deployed cleanly on the first attempt with zero new bugs. Three real fixes from the Month-End Close Assistant's deployment were applied proactively — direct evidence those fixes addressed real root causes, not just one project's symptoms | A live ECS Service with a real multi-agent graph and a live demo page. 3 distinct real deployment bugs were diagnosed and fixed with direct evidence at each step |
-| **Real bugs found & fixed** | A real data-format mismatch (documentation vs. actual downloaded data), a Parquet schema quirk silently hiding missing values, a currency-comparison bug under-reporting real accuracy, and 4 distinct reliability-system blind spots — each found by refusing to accept a good-looking number at face value | A genuine uvicorn/Docker import-path issue, an unexplained file silently dropped from a broader folder copy, and a real IAM permission gap — each diagnosed with direct evidence (inspecting the built container's actual filesystem, checking the image's real existence) before being fixed |
+| | Financial Doc Extraction | Month-End Close Assistant | Compliance-Aware AI Guardrails | Journal Entry Classifier + LayoutLMv2 | Multimodal Receipt Processing |
+|---|---|---|---|---|---|
+| **Problem type** | Structured extraction + output reliability engineering | Multi-agent orchestration | Systematic evaluation + defense-in-depth guardrails | Fine-tuning (SFT) + layout-aware document understanding | Vision-direct multimodal extraction |
+| **Data** | 987 real SROIE receipts (ICDAR 2019) + 160 synthetic B2B invoices | Multi-month synthetic account balances, randomized realistic anomalies | 23 hand-written test cases (4 categories) + a genuinely fresh 20-case holdout set | 300 synthetic journal entries (12 GL categories) + the same real SROIE dataset from Project 1 | 200 real, photographed receipts (CORD-v2) + 11 hand-verified real US receipts |
+| **Core technique** | LangChain structured output (function calling). A 4-signal reliability system: reconciliation, field plausibility, semantic similarity, header validation | LangGraph `StateGraph` directly. 5 specialized agents, including a real parallel fan-out | A five-layer real check: rule-based pre-check, dedicated LLM injection classifier, the assistant's own response, a post-response advice-language check, a usefulness judge | DistilBERT fine-tuning (GL classification) + LayoutLMv2 fine-tuning (layout-aware address extraction, using real bounding-box position) | Vision-direct extraction (Claude reads the image directly) vs. OCR-then-parse baselines, with a multi-run consistency check and cross-validation safety layer |
+| **Core finding** | 7 distinct reliability blind spots found and fixed through direct investigation, not designed correctly upfront. Final result (100% precision on "trust this" predictions) confirmed to generalize on a genuinely fresh holdout set | 100% accuracy on every real anomaly type, confirmed on two independent holdout runs. A real model fabrication was caught by an independent validator, after a prompt-only fix was tested and found insufficient | The rule-based pre-check had a real, severe generalization gap (0/6 on genuinely new injection techniques), closed directly by adding a dedicated LLM classifier (6/6 on a second holdout run). A real blind spot in the scoring itself was found via live testing and fixed with a dedicated usefulness judge | Zero-shot journal classification reached 90.0%, with one dominant, real weakness (Accounts Receivable vs. Service Revenue confusion). Fine-tuning closed it to 100%, verified as genuine task learning (not memorization) on entirely novel vendors. LayoutLMv2 closed Project 1's real 0%-exact-match address ceiling to 97.2% token-level F1 — genuinely comparable to the published SROIE benchmark, after discovering the stricter exact-match metric had been giving a misleading picture of genuinely strong performance | Vision-direct beat OCR by 3.6x (87.9% vs. 24.5%/81% total-price accuracy). The project's worst failure (8 different wrong totals across 8 runs on one receipt) was traced past glare and QR codes to its real root cause: email compression destroying the image before the model ever saw it — reframing an apparent model limitation as a real, upstream data-quality problem |
+| **Deployment** | A live ECS Service, deployed cleanly on the first attempt with zero new bugs. Three real fixes from the Month-End Close Assistant's deployment were applied proactively — direct evidence those fixes addressed real root causes, not just one project's symptoms | A live ECS Service with a real multi-agent graph and a live demo page. 3 distinct real deployment bugs were diagnosed and fixed with direct evidence at each step | A live, interactive ECS Service — visitors type any prompt, including real attempts to break it, and see exactly which layer catches it. Every lesson from prior deployments applied proactively; reached `RUNNING` on the first attempt | A live ECS Service (the LayoutLMv2 address-extraction model specifically), deployed on CPU-only Fargate as a deliberate cost trade-off (~100x cheaper per hour than GPU-backed EC2, reasonable for a one-question-at-a-time demo). Three real, distinct bugs found and fixed | A live ECS Fargate service, working end-to-end after resolving five distinct real infrastructure issues (three IAM permission gaps, a wrong deployment script for the actual environment, and a genuine SDK version bug), confirmed against a diverse batch of real receipts in production |
+| **Real bugs found & fixed** | A real data-format mismatch (documentation vs. actual downloaded data), a Parquet schema quirk silently hiding missing values, a currency-comparison bug under-reporting real accuracy, and 4 distinct reliability-system blind spots — each found by refusing to accept a good-looking number at face value | A genuine uvicorn/Docker import-path issue, an unexplained file silently dropped from a broader folder copy, and a real IAM permission gap — each diagnosed with direct evidence (inspecting the built container's actual filesystem, checking the image's real existence) before being fixed | A confirmed generalization gap in rule-based prompt-injection detection, a real blind spot in evaluation scoring itself (checking a response existed, not that it was useful) that hid a factual hallucination and a recurring deflection pattern, and a judge-calibration check where an initial "looks fine" read was tested against a comparable case and found wrong | A BIO-labeling granularity misunderstanding (SROIE's "words" are whole lines, not tokens — confirmed failing 0/625 before the real fix), a severe word-to-token misalignment bug masking genuinely strong model performance (0.0% exact match despite healthy training loss), a disproven hypothesis about JALAN-line mislabeling, and a corrected false claim about required dataset size, checked directly against the real published paper | Three sequential real IAM/infrastructure issues (Secrets Manager, ECR pull, CloudWatch log group creation), a genuine `anthropic` SDK/httpx version incompatibility reproduced and fixed directly in sandbox, and a resolution-based safety check that was built too strict and corrected after real evidence disproved it |
 
 ---
 
@@ -49,45 +51,49 @@ problem, a genuine imbalanced classification problem, a genuine
 unsupervised problem with no labels at training time, a genuine NLP
 problem spanning classical ML through fine-tuned transformers, a
 genuine retrieval-augmented agentic system, genuine structured-output
-reliability engineering, and genuine multi-agent orchestration. That
-is seven different core techniques and seven different evaluation
-approaches. These are not variations on the same idea.
+reliability engineering, genuine multi-agent orchestration, genuine
+systematic evaluation and defense-in-depth guardrails, genuine
+fine-tuning across two model architectures (a text classifier and a
+layout-aware document model), and genuine multimodal vision-direct
+extraction. That is ten different core techniques and ten different
+evaluation approaches. These are not variations on the same idea.
 
 **A portfolio that responds to real market signal, not just personal
-interest.** The two AI Engineering projects exist because live
+interest.** The five AI Engineering projects exist because live
 research into current hiring data showed RAG/agent skills,
-structured-output reliability engineering, and multi-agent
-orchestration carrying the highest wage premium of any specific
-technical cluster. They were scoped and built directly in response to
-that finding. Framework and technique choices were verified against
-real, current, verifiable sources, not assumed from possibly-stale
-training knowledge. Examples: LangChain's `create_agent()` for the RAG
-project, LangGraph's `StateGraph` directly for the Month-End Close
-Assistant, and `all-mpnet-base-v2` as the real published best-performer
-for paraphrase detection, with its own cited optimal threshold.
+structured-output reliability engineering, multi-agent orchestration,
+systematic evaluation, and fine-tuning carrying the highest wage
+premium of any specific technical cluster. They were scoped and built
+directly in response to that finding. Framework and technique choices
+were verified against real, current, verifiable sources, not assumed
+from possibly-stale training knowledge. Examples: LangChain's
+`create_agent()` for the RAG project, LangGraph's `StateGraph`
+directly for the Month-End Close Assistant, `all-mpnet-base-v2` as the
+real published best-performer for paraphrase detection, and LayoutLMv2
+as the real, published architecture achieving 95%+ F1 on layout-aware
+address extraction — with the exact same 626-receipt training set
+already in use, confirmed directly against the source paper rather
+than assumed.
 
 **Rigor that goes beyond running a model.** Every project includes a
 specific, falsifiable hypothesis tested against real evidence. Every
 project has real production bugs found and fixed with direct evidence.
-Honest limitations are stated plainly, not glossed over. The two AI
-Engineering projects each add a further form of rigor beyond even the
-RAG project's mechanical groundedness checking: iteratively-built
-reliability systems, honestly holdout-validated. A strong result
-measured on the same data used to develop a system cannot be fully
-trusted. So a completely fresh dataset — different random seed,
-confirmed genuinely different data — was generated and evaluated with
-the unmodified system each time. This tests whether a result is real,
-or just an artifact of fitting to the tuning sample. In both projects,
-the result held up on the metric that mattered most. Specific
-sub-findings did not always hold, and that was reported honestly
-rather than hidden. The Month-End Close Assistant's holdout run went
-further: it found a real, previously-invisible data-generation flaw
-that the smaller tuning sample had never exposed. The flaw was fixed,
-and the fix was re-verified with a second, independent holdout run
-before it was trusted.
+Honest limitations are stated plainly, not glossed over. Several
+projects show a strong result being independently, adversarially
+re-checked rather than accepted: the Month-End Close Assistant's
+holdout validation found a real, previously-invisible data-generation
+flaw a smaller tuning sample had never exposed; the Journal Entry
+Classifier's perfect 100% holdout score was treated with real
+suspicion (not celebration) and re-verified against entirely novel
+vendors before being trusted; the Compliance-Aware Guardrails project
+found a real generalization gap in its own rule-based defense layer
+specifically by testing it against a genuinely fresh, never-seen
+holdout set. A strong result measured on the same data used to develop
+a system cannot be fully trusted — that discipline is applied
+consistently, not selectively.
 
-**Real deployment experience, including a real, reasoned scope
-decision that was later reconsidered.** All seven projects run live
+**Real deployment experience, including real, reasoned scope
+decisions that were later reconsidered.** All ten projects run live
 on AWS. This was verified via actual CloudWatch logs and direct
 file/S3 checks, never trusted from a clean exit code alone. The
 Financial Doc Extraction project was initially, deliberately left
@@ -97,8 +103,25 @@ already proven elsewhere. That decision was later reconsidered. When
 the deployment was actually carried out, it applied three real,
 hard-won fixes from the Month-End Close Assistant's own deployment
 proactively. The task reached `RUNNING` on the first attempt, with
-zero new bugs. That is direct evidence those fixes generalized to a
-real root cause, not just one project's specific symptoms.
+zero new bugs — direct evidence those fixes generalized to a real
+root cause, not just one project's specific symptoms. The same
+discipline repeated again in the Guardrails and Journal Entry Classifier
+deployments: lessons from each prior deployment were applied
+proactively to the next, not rediscovered from scratch.
+
+**Honest, well-characterized negative results, not just wins.** The
+Journal Entry Classifier's LayoutLMv2 work is a strong example: a
+well-tested class-weighting attempt produced no meaningful improvement
+(a real, honest negative result correctly attributed to the loss
+function not being the bottleneck), and a specific hypothesis about
+mislabeled training data was tested directly and disproven (100% of
+the relevant training examples were correctly labeled) before the real
+root cause — a metric choice giving a misleading picture of genuinely
+strong performance — was found. The Multimodal Receipt Processing
+project's own fine-tuning attempt is reported the same way: zero
+regression on standard data, but a genuine, unresolved failure on the
+specific hard cases it targeted, with a clear, evidenced explanation
+rather than a forced or hidden result.
 
 ---
 
@@ -138,21 +161,50 @@ real root cause, not just one project's specific symptoms.
   prompt-only fix was insufficient through direct testing, and closed
   the issue completely with an independent, rule-based validator
   instead.
-- Diagnosed and resolved real production deployment issues across
-  seven projects: a cross-platform file-casing bug, IAM role
+- Designed and built a five-layer, defense-in-depth guardrails and
+  systematic evaluation framework for a financial AI assistant (23
+  hand-written adversarial/edge-case test cases, plus a genuinely
+  fresh 20-case holdout set). Found and closed a real, confirmed
+  generalization gap in rule-based prompt-injection detection (0/6 on
+  novel techniques) by adding a dedicated LLM classifier layer,
+  verified to fully close the gap on a second holdout run. Identified
+  and fixed a real blind spot in the evaluation methodology itself,
+  which had been masking a factual hallucination and a recurring
+  response-quality problem.
+- Fine-tuned two distinct model architectures for real accounting
+  document-understanding tasks. A DistilBERT classifier improved
+  general ledger coding from a 90.0% zero-shot baseline to 100%,
+  verified as genuine task learning (not memorization) against
+  entirely novel vendors. A LayoutLMv2 model, using real bounding-box
+  layout position, closed a documented 0%-exact-match address
+  extraction ceiling from a prior text-only pipeline to 97.2%
+  token-level F1 — independently verified as comparable to the
+  published research benchmark for this exact task.
+- Built and evaluated a vision-direct multimodal document extraction
+  pipeline (Claude reads receipt images directly), benchmarked against
+  two OCR-then-parse baselines across 200 real, photographed receipts,
+  winning by 3.6x on total-price accuracy. Investigated the project's
+  most severe failure (repeated, wildly inconsistent hallucination on
+  a specific receipt) to its actual root cause — image compression
+  during transfer, not a model limitation — reframing an apparent AI
+  reliability problem as a real, fixable data-pipeline issue.
+- Diagnosed and resolved real production deployment issues across ten
+  projects: a cross-platform file-casing bug, IAM role
   misconfigurations, a silently-incomplete containerized pipeline, a
   secrets-management gap, cross-identity IAM permission issues, a
   networking/security-group misconfiguration, a Docker/uvicorn
   import-path issue, an unexplained file silently dropped from a build
-  context, and a missing CloudWatch log-group permission. Each was
-  verified fixed using direct evidence (AWS CLI output, or inspecting
-  a built container's actual filesystem), not assumed from success.
+  context, a missing CloudWatch log-group permission, a genuine SDK
+  version incompatibility, and a wrong deployment script for the
+  actual target environment. Each was verified fixed using direct
+  evidence (AWS CLI output, or inspecting a built container's actual
+  filesystem), not assumed from success.
 - Compared 5+ modeling approaches per project with rigorous,
   metric-appropriate evaluation: MAPE, PR-AUC, ROC-AUC, top-K
   precision, per-class F1, retrieval accuracy, agent routing accuracy,
-  reliability precision/recall. Diagnosed and explained why each
-  approach won or lost, using direct statistical and mechanistic
-  evidence rather than reporting metrics alone.
+  reliability precision/recall, token-level F1. Diagnosed and
+  explained why each approach won or lost, using direct statistical
+  and mechanistic evidence rather than reporting metrics alone.
 
 ---
 
@@ -178,6 +230,18 @@ The weak anomaly type's statistical signal was categorically weaker
 than what drove the autoencoder's actual successes. This was a
 specific, actionable finding — one a confirmed hypothesis would never
 have produced.
+
+*A second, more recent example: the class-weighted training attempt
+(Journal Entry Classifier project, Part 2).* A real, well-tested
+hypothesis — that reweighting rare training classes would close a
+confirmed accuracy gap in address extraction — was set up carefully:
+inverse-frequency weights computed directly from the actual training
+label distribution, tested in isolation first to confirm the
+weighting genuinely penalized rare-class errors more before spending
+real GPU time on it. The full retraining produced essentially no
+change. A genuine negative result, correctly interpreted: the
+bottleneck wasn't the loss function at all — the real cause (a metric
+choice, not a training deficiency) was found afterward.
 
 ### "Tell me about a hypothesis that turned out to be right"
 *The transformer vs. TF-IDF test (financial NLP project).* A TF-IDF
@@ -231,6 +295,18 @@ hallucination. It was precisely diagnosed and directly addressed in
 the system prompt, rather than ignored or overstated as a systemic
 failure.
 
+*A related, more recent example: the multimodal receipt hallucination
+investigation.* A receipt produced 8 different, wildly wrong totals
+across 8 identical runs. Two direct hypotheses (glare, a QR code) were
+tested with controlled comparisons and ruled out. The real cause was
+found only when the person provided the genuine, uncompressed original
+photo: the receipt had been silently compressed during email transfer
+(640×480 pixels, down from a real 4032×3024), destroying the visual
+data before the model ever received it. The same receipt, given its
+real resolution, was read correctly on the first attempt. This
+reframed the entire failure from an apparent AI reliability problem
+into a real, fixable data-pipeline issue.
+
 ### "Tell me about a deployment that didn't go smoothly"
 *The financial RAG agent's live ECS Service deployment.* Five
 genuinely distinct issues came up in one deployment session. Each was
@@ -243,6 +319,19 @@ networking gap. The service had landed on the VPC's default security
 group by omission, which permits no public inbound traffic at all.
 Final result: a real HTTP request, from a local machine, over the
 internet, correctly answered by a live container on AWS.
+
+*A related, more recent example: the Multimodal Receipt Processing
+deployment.* Four sequential real infrastructure issues surfaced one
+at a time: the deploy script itself was written for the wrong shell
+environment (bash instead of the actual native Windows/Cmd setup, requiring
+a genuine rewrite), then three distinct IAM permission gaps on the
+same task role (Secrets Manager access, ECR image pull, CloudWatch log
+group creation) — each one only becoming visible after the previous
+one was fixed and the task progressed further before failing again.
+After all three were resolved, the container itself crashed on a real
+application-level bug: a version incompatibility between the pinned
+SDK and a newer underlying HTTP library, reproduced and confirmed
+fixed directly in a local sandbox before redeploying.
 
 ### "Tell me about building a system you didn't fully trust, and how you made it trustworthy"
 *The document extraction project's reliability system.* A two-signal
@@ -265,6 +354,19 @@ completely fresh dataset the system had never seen in any form was
 generated, and the result held exactly, on the metric that mattered
 most.
 
+*A related, more recent example: the Compliance-Aware Guardrails
+project's defense-in-depth design.* A rule-based prompt-injection
+pre-check performed well on its original test set (5/6 known
+techniques caught, zero false positives). Tested against a genuinely
+fresh holdout set of new injection techniques, it caught 0 of 6 — a
+real, severe, confirmed generalization gap in pattern matching. Rather
+than treat the overall system's still-strong score (6/6, via the
+model's own in-context judgment and an independent post-check) as good
+enough, a dedicated LLM classifier layer was added specifically to
+close that gap — verified directly to work, catching 6/6 on a second
+holdout run, confirmed by checking which specific layer blocked each
+case rather than assuming the fix worked.
+
 ### "Tell me about relying on a public dataset or library that turned out to be broken"
 *Financial PhraseBank loading (financial NLP project).* The commonly
 documented way to load this benchmark is fully broken. This was
@@ -285,6 +387,22 @@ columnar format silently represents a missing value as a present key
 holding `None`, not an absent key. This was confirmed only by testing
 against a real Parquet round-trip, not synthetic Python dicts.
 
+*A related, more recent example: the LayoutLMv2 metric investigation
+(Journal Entry Classifier project).* An early, unverified claim —
+that closing a real address-extraction accuracy gap would require
+training sets "in the tens of thousands" — was checked directly
+against the actual published LayoutLMv2 paper, rather than left
+unverified. It was found to be false: the real paper fine-tunes on the
+exact same 626-receipt training set already in use here, reaching
+97.81% F1. The much lower number seen locally (2.8% exact match) was
+then traced to a genuine metric mismatch, not a dataset-size problem:
+the strict, plain-language "exact match" metric being used was far
+harsher than the standard token-level F1 the published research
+actually reports. Computing the same standard metric directly on the
+already-trained model revealed a genuinely strong, comparable result
+(97.2% F1) that had been hiding behind the wrong yardstick the entire
+time.
+
 ### "Tell me about testing whether a fix actually worked, not just assuming it did"
 *The month-end close assistant's prompt-only fix, tested and found
 insufficient.* A multi-agent close-analysis system fabricated a causal
@@ -302,6 +420,17 @@ classification fell to 43% on fresh data), traced directly to a
 data-generation flaw, not a model weakness. It was fixed, and
 re-verified with a second, independent holdout run before the fix was
 trusted.
+
+*A related, more recent example: the Journal Entry Classifier's 100%
+holdout result, deliberately not trusted at face value.* A perfect
+score on holdout data is a signal for real suspicion, not celebration.
+The original holdout set shared the same vendor pool as training data
+— a model could reach 100% by memorizing vendor identity rather than
+genuinely learning the task. A second, genuinely independent test was
+built: 24 entries using vendors the model had never seen in any form,
+directly verified with a real overlap check (confirmed to actually
+catch a deliberately reused vendor before being trusted). Result: 24/24
+— real evidence of genuine task learning, not memorization.
 
 ### "Tell me about a really difficult, frustrating debugging session"
 *Deploying the month-end close assistant live.* Three genuinely
@@ -324,6 +453,24 @@ before moving to the next step, never assumed from a clean-looking
 command. By the end, the service was live and correctly answering real
 requests over the internet.
 
+*A related, more recent example: the LayoutLMv2 training investigation
+(Journal Entry Classifier project).* Evaluation showed 0.0% exact
+match despite training's own loss converging cleanly — a stark,
+confirmed mismatch between "the model is learning" and "the evaluation
+says it isn't." The root cause took real, layered investigation to
+find: LayoutLMv2's output is token-level (subword tokens, plus special
+tokens), not word-level, and the original extraction code used a naive
+positional slice that didn't correspond to real word boundaries at
+all. The fix (the processor's real `word_ids()` alignment) was tested
+directly against realistic mock data — including subword splitting,
+special tokens, and truncation — before being trusted. Real
+infrastructure setbacks compounded the difficulty: a required
+dependency with no Windows support forced a move to Google Colab, an
+overnight session disconnect lost an entire trained model to
+non-persistent storage, and the free GPU tier's quota was confirmed
+exhausted, requiring real compute units to be purchased to continue
+same-day.
+
 ---
 
 ## Where each project's full write-up lives
@@ -335,12 +482,17 @@ requests over the internet.
 - **Financial RAG Agent**: [github.com/lordadrianbold/financial-rag-agent](https://github.com/lordadrianbold/financial-rag-agent)
 - **Financial Document Extraction**: [github.com/lordadrianbold/financial-doc-extraction](https://github.com/lordadrianbold/financial-doc-extraction)
 - **Month-End Close Assistant**: [github.com/lordadrianbold/month-end-close-assistant](https://github.com/lordadrianbold/month-end-close-assistant)
+- **Compliance-Aware AI Guardrails**: [github.com/lordadrianbold/ai-guardrails-eval](https://github.com/lordadrianbold/ai-guardrails-eval)
+- **Journal Entry Classifier + LayoutLMv2**: [github.com/lordadrianbold/journal-entry-classifier](https://github.com/lordadrianbold/journal-entry-classifier)
+- **Multimodal Receipt Processing**: [github.com/lordadrianbold/multimodal-receipt-processing](https://github.com/lordadrianbold/multimodal-receipt-processing)
 
 Double-check these URLs match your actual repo names exactly.
 
 Each project's `notes.md` is the detailed, week-by-week technical
 record. Each `README.md` is the front-door summary a reviewer sees
 first.
+
+
 
 
 
