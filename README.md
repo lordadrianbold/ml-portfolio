@@ -1,16 +1,17 @@
 # ML & AI Engineering Portfolio — Summary
 
-This portfolio has ten end-to-end projects. Five are core ML projects.
-Five are AI Engineering projects.
+This portfolio has eleven end-to-end projects. Five are core ML projects.
+Six are AI Engineering projects.
 
 Together they cover supervised classification, time-series
 forecasting, unsupervised anomaly detection, NLP, retrieval-augmented
 agents, structured-output reliability engineering, multi-agent
 orchestration, systematic evaluation/guardrails, fine-tuning, and
-multimodal vision-direct extraction. Every project was deployed and
+multimodal vision-direct extraction, and a hybrid design where an LLM makes
+one judgment and tested code does everything else. Every project was deployed and
 verified, not just built and left in a notebook.
 
-The five AI Engineering projects close a real, current market gap.
+The six AI Engineering projects close a real, current market gap.
 Live research into current hiring data showed RAG, vector databases,
 agent orchestration, structured-output reliability engineering,
 systematic evaluation, and fine-tuning as the highest-premium skill
@@ -30,16 +31,16 @@ original ML projects touch these skills.
 | **Deployment** | ECS Fargate batch task + FastAPI/Streamlit (Docker-tested) | ECS Fargate batch task, 525MB S3 data pipeline | ECS Fargate batch task, self-contained (generates own data) | ECS Fargate, 4 separate sub-pipeline task runs, cross-project S3 dependency | A live ECS Service. First project with real inbound networking and a real managed secret |
 | **Real bugs found & fixed** | `uvicorn` import path gotcha, container filesystem isolation, S3 client timeout | Windows/Linux case-sensitivity, stale Docker CMD, IAM role mixup, missing log group permission | Same case-sensitivity/CMD lessons applied proactively. Stale local files caught via S3 path verification | Broken/deprecated public dataset infrastructure (3 layers deep), a fiscal-year calculation bug, a slow Docker build diagnosed and fixed | 4 distinct real HTML parsing bugs, a silently-wrong extraction caught only by manual verification, and 5 distinct deployment/IAM/networking issues in a single live deployment session |
 
-## The five AI Engineering projects at a glance
+## The six AI Engineering projects at a glance
 
-| | Financial Doc Extraction | Month-End Close Assistant | Compliance-Aware AI Guardrails | Journal Entry Classifier + LayoutLMv2 | Multimodal Receipt Processing |
-|---|---|---|---|---|---|
-| **Problem type** | Structured extraction + output reliability engineering | Multi-agent orchestration | Systematic evaluation + defense-in-depth guardrails | Fine-tuning (SFT) + layout-aware document understanding | Vision-direct multimodal extraction |
-| **Data** | 987 real SROIE receipts (ICDAR 2019) + 160 synthetic B2B invoices | Multi-month synthetic account balances, randomized realistic anomalies | 23 hand-written test cases (4 categories) + a genuinely fresh 20-case holdout set | 300 synthetic journal entries (12 GL categories) + the same real SROIE dataset from Project 1 | 200 real, photographed receipts (CORD-v2) + 11 hand-verified real US receipts |
-| **Core technique** | LangChain structured output (function calling). A 4-signal reliability system: reconciliation, field plausibility, semantic similarity, header validation | LangGraph `StateGraph` directly. 5 specialized agents, including a real parallel fan-out | A five-layer real check: rule-based pre-check, dedicated LLM injection classifier, the assistant's own response, a post-response advice-language check, a usefulness judge | DistilBERT fine-tuning (GL classification) + LayoutLMv2 fine-tuning (layout-aware address extraction, using real bounding-box position) | Vision-direct extraction (Claude reads the image directly) vs. OCR-then-parse baselines, with a multi-run consistency check and cross-validation safety layer |
-| **Core finding** | 7 distinct reliability blind spots found and fixed through direct investigation, not designed correctly upfront. Final result (100% precision on "trust this" predictions) confirmed to generalize on a genuinely fresh holdout set | 100% accuracy on every real anomaly type, confirmed on two independent holdout runs. A real model fabrication was caught by an independent validator, after a prompt-only fix was tested and found insufficient | The rule-based pre-check had a real, severe generalization gap (0/6 on genuinely new injection techniques), closed directly by adding a dedicated LLM classifier (6/6 on a second holdout run). A real blind spot in the scoring itself was found via live testing and fixed with a dedicated usefulness judge | Zero-shot journal classification reached 90.0%, with one dominant, real weakness (Accounts Receivable vs. Service Revenue confusion). Fine-tuning closed it to 100%, verified as genuine task learning (not memorization) on entirely novel vendors. LayoutLMv2 closed Project 1's real 0%-exact-match address ceiling to 97.2% token-level F1 — genuinely comparable to the published SROIE benchmark, after discovering the stricter exact-match metric had been giving a misleading picture of genuinely strong performance | Vision-direct beat OCR by 3.6x (87.9% vs. 24.5%/81% total-price accuracy). The project's worst failure (8 different wrong totals across 8 runs on one receipt) was traced past glare and QR codes to its real root cause: email compression destroying the image before the model ever saw it — reframing an apparent model limitation as a real, upstream data-quality problem |
-| **Deployment** | A live ECS Service, deployed cleanly on the first attempt with zero new bugs. Three real fixes from the Month-End Close Assistant's deployment were applied proactively — direct evidence those fixes addressed real root causes, not just one project's symptoms | A live ECS Service with a real multi-agent graph and a live demo page. 3 distinct real deployment bugs were diagnosed and fixed with direct evidence at each step | A live, interactive ECS Service — visitors type any prompt, including real attempts to break it, and see exactly which layer catches it. Every lesson from prior deployments applied proactively; reached `RUNNING` on the first attempt | A live ECS Service (the LayoutLMv2 address-extraction model specifically), deployed on CPU-only Fargate as a deliberate cost trade-off (~100x cheaper per hour than GPU-backed EC2, reasonable for a one-question-at-a-time demo). Three real, distinct bugs found and fixed | A live ECS Fargate service, working end-to-end after resolving five distinct real infrastructure issues (three IAM permission gaps, a wrong deployment script for the actual environment, and a genuine SDK version bug), confirmed against a diverse batch of real receipts in production |
-| **Real bugs found & fixed** | A real data-format mismatch (documentation vs. actual downloaded data), a Parquet schema quirk silently hiding missing values, a currency-comparison bug under-reporting real accuracy, and 4 distinct reliability-system blind spots — each found by refusing to accept a good-looking number at face value | A genuine uvicorn/Docker import-path issue, an unexplained file silently dropped from a broader folder copy, and a real IAM permission gap — each diagnosed with direct evidence (inspecting the built container's actual filesystem, checking the image's real existence) before being fixed | A confirmed generalization gap in rule-based prompt-injection detection, a real blind spot in evaluation scoring itself (checking a response existed, not that it was useful) that hid a factual hallucination and a recurring deflection pattern, and a judge-calibration check where an initial "looks fine" read was tested against a comparable case and found wrong | A BIO-labeling granularity misunderstanding (SROIE's "words" are whole lines, not tokens — confirmed failing 0/625 before the real fix), a severe word-to-token misalignment bug masking genuinely strong model performance (0.0% exact match despite healthy training loss), a disproven hypothesis about JALAN-line mislabeling, and a corrected false claim about required dataset size, checked directly against the real published paper | Three sequential real IAM/infrastructure issues (Secrets Manager, ECR pull, CloudWatch log group creation), a genuine `anthropic` SDK/httpx version incompatibility reproduced and fixed directly in sandbox, and a resolution-based safety check that was built too strict and corrected after real evidence disproved it |
+| | Financial Doc Extraction | Month-End Close Assistant | Compliance-Aware AI Guardrails | Journal Entry Classifier + LayoutLMv2 | Multimodal Receipt Processing | Prepaid Expense Identification & Amortization |
+|---|---|---|---|---|---|---|
+| **Problem type** | Structured extraction + output reliability engineering | Multi-agent orchestration | Systematic evaluation + defense-in-depth guardrails | Fine-tuning (SFT) + layout-aware document understanding | Vision-direct multimodal extraction | Document understanding + judgment (capitalize vs. expense) with deterministic accounting |
+| **Data** | 987 real SROIE receipts (ICDAR 2019) + 160 synthetic B2B invoices | Multi-month synthetic account balances, randomized realistic anomalies | 23 hand-written test cases (4 categories) + a genuinely fresh 20-case holdout set | 300 synthetic journal entries (12 GL categories) + the same real SROIE dataset from Project 1 | 200 real, photographed receipts (CORD-v2) + 11 hand-verified real US receipts | 144 made-up invoice files (48 PDFs plus 48 photo-style images in the fair set), and 5 real personal PDF bills |
+| **Core technique** | LangChain structured output (function calling). A 4-signal reliability system: reconciliation, field plausibility, semantic similarity, header validation | LangGraph `StateGraph` directly. 5 specialized agents, including a real parallel fan-out | A five-layer real check: rule-based pre-check, dedicated LLM injection classifier, the assistant's own response, a post-response advice-language check, a usefulness judge | DistilBERT fine-tuning (GL classification) + LayoutLMv2 fine-tuning (layout-aware address extraction, using real bounding-box position) | Vision-direct extraction (Claude reads the image directly) vs. OCR-then-parse baselines, with a multi-run consistency check and cross-validation safety layer | One LLM judgment (classification and stated dates); everything else is tested code: exact-decimal schedules, balanced journal entries, a $500 threshold, end dates computed in code, and a set of document checks that send doubtful bills to a review list |
+| **Core finding** | 7 distinct reliability blind spots found and fixed through direct investigation, not designed correctly upfront. Final result (100% precision on "trust this" predictions) confirmed to generalize on a genuinely fresh holdout set | 100% accuracy on every real anomaly type, confirmed on two independent holdout runs. A real model fabrication was caught by an independent validator, after a prompt-only fix was tested and found insufficient | The rule-based pre-check had a real, severe generalization gap (0/6 on genuinely new injection techniques), closed directly by adding a dedicated LLM classifier (6/6 on a second holdout run). A real blind spot in the scoring itself was found via live testing and fixed with a dedicated usefulness judge | Zero-shot journal classification reached 90.0%, with one dominant, real weakness (Accounts Receivable vs. Service Revenue confusion). Fine-tuning closed it to 100%, verified as genuine task learning (not memorization) on entirely novel vendors. LayoutLMv2 closed Project 1's real 0%-exact-match address ceiling to 97.2% token-level F1 — genuinely comparable to the published SROIE benchmark, after discovering the stricter exact-match metric had been giving a misleading picture of genuinely strong performance | Vision-direct beat OCR by 3.6x (87.9% vs. 24.5%/81% total-price accuracy). The project's worst failure (8 different wrong totals across 8 runs on one receipt) was traced past glare and QR codes to its real root cause: email compression destroying the image before the model ever saw it — reframing an apparent model limitation as a real, upstream data-quality problem | Reading a photo twice and getting the same answer is not proof it is right. Arithmetic and plausibility checks in code caught what repeat reads could not, and the model is unreliable at date arithmetic, so code does it. On an untouched fresh set the PDFs were right 48 of 48; photos had 7 flagged and 1 wrong-and-unflagged |
+| **Deployment** | A live ECS Service, deployed cleanly on the first attempt with zero new bugs. Three real fixes from the Month-End Close Assistant's deployment were applied proactively — direct evidence those fixes addressed real root causes, not just one project's symptoms | A live ECS Service with a real multi-agent graph and a live demo page. 3 distinct real deployment bugs were diagnosed and fixed with direct evidence at each step | A live, interactive ECS Service — visitors type any prompt, including real attempts to break it, and see exactly which layer catches it. Every lesson from prior deployments applied proactively; reached `RUNNING` on the first attempt | A live ECS Service (the LayoutLMv2 address-extraction model specifically), deployed on CPU-only Fargate as a deliberate cost trade-off (~100x cheaper per hour than GPU-backed EC2, reasonable for a one-question-at-a-time demo). Three real, distinct bugs found and fixed | A live ECS Fargate service, working end-to-end after resolving five distinct real infrastructure issues (three IAM permission gaps, a wrong deployment script for the actual environment, and a genuine SDK version bug), confirmed against a diverse batch of real receipts in production | Web demo on ECS Fargate (free sample bills, rate-limited uploads, a "to be reviewed by user" box), started and stopped on demand. Three deployment issues were found and fixed |
+| **Real bugs found & fixed** | A real data-format mismatch (documentation vs. actual downloaded data), a Parquet schema quirk silently hiding missing values, a currency-comparison bug under-reporting real accuracy, and 4 distinct reliability-system blind spots — each found by refusing to accept a good-looking number at face value | A genuine uvicorn/Docker import-path issue, an unexplained file silently dropped from a broader folder copy, and a real IAM permission gap — each diagnosed with direct evidence (inspecting the built container's actual filesystem, checking the image's real existence) before being fixed | A confirmed generalization gap in rule-based prompt-injection detection, a real blind spot in evaluation scoring itself (checking a response existed, not that it was useful) that hid a factual hallucination and a recurring deflection pattern, and a judge-calibration check where an initial "looks fine" read was tested against a comparable case and found wrong | A BIO-labeling granularity misunderstanding (SROIE's "words" are whole lines, not tokens — confirmed failing 0/625 before the real fix), a severe word-to-token misalignment bug masking genuinely strong model performance (0.0% exact match despite healthy training loss), a disproven hypothesis about JALAN-line mislabeling, and a corrected false claim about required dataset size, checked directly against the real published paper | Three sequential real IAM/infrastructure issues (Secrets Manager, ECR pull, CloudWatch log group creation), a genuine `anthropic` SDK/httpx version incompatibility reproduced and fixed directly in sandbox, and a resolution-based safety check that was built too strict and corrected after real evidence disproved it | An SDK with no temperature option (the first run silently failed on every file), model date-arithmetic errors, a bill read as an ordinary expense that still stated a running service period, a real insurance bill whose "expiration date" was counted as a covered day (366 days instead of 365), a missing log-group permission, and a container installing a different library version than the one tested |
 
 ---
 
@@ -55,11 +56,12 @@ reliability engineering, genuine multi-agent orchestration, genuine
 systematic evaluation and defense-in-depth guardrails, genuine
 fine-tuning across two model architectures (a text classifier and a
 layout-aware document model), and genuine multimodal vision-direct
-extraction. That is ten different core techniques and ten different
+extraction, plus a hybrid LLM-and-deterministic-code design with explicit
+review controls. That is eleven different core techniques and eleven different
 evaluation approaches. These are not variations on the same idea.
 
 **A portfolio that responds to real market signal, not just personal
-interest.** The five AI Engineering projects exist because live
+interest.** The AI Engineering projects exist because live
 research into current hiring data showed RAG/agent skills,
 structured-output reliability engineering, multi-agent orchestration,
 systematic evaluation, and fine-tuning carrying the highest wage
@@ -93,7 +95,7 @@ a system cannot be fully trusted — that discipline is applied
 consistently, not selectively.
 
 **Real deployment experience, including real, reasoned scope
-decisions that were later reconsidered.** All ten projects run live
+decisions that were later reconsidered.** All eleven projects were deployed live
 on AWS. This was verified via actual CloudWatch logs and direct
 file/S3 checks, never trusted from a clean exit code alone. The
 Financial Doc Extraction project was initially, deliberately left
@@ -188,14 +190,25 @@ rather than a forced or hidden result.
   a specific receipt) to its actual root cause — image compression
   during transfer, not a model limitation — reframing an apparent AI
   reliability problem as a real, fixable data-pipeline issue.
-- Diagnosed and resolved real production deployment issues across ten
+- Built a prepaid-expense identification and amortization tool (vendor
+  invoice as PDF or photo in; schedule, balanced journal entries and an
+  Excel month-end worksheet out). The AI makes one judgment; tested code does
+  the schedules, a $500 threshold, end dates and a set of document checks
+  that send anything doubtful to a review list instead of the ledger. On an
+  untouched fresh set of 48 made-up invoices it was right on 48 of 48 PDFs;
+  on the photo versions 7 were flagged for review and 1 error went
+  unflagged, reported as found. A first test on 5 real personal bills got all
+  5 booking decisions right and surfaced a real insurance-date bug the made-up
+  data could not. Deployed as a rate-limited web demo on AWS ECS Fargate.
+- Diagnosed and resolved real production deployment issues across eleven
   projects: a cross-platform file-casing bug, IAM role
   misconfigurations, a silently-incomplete containerized pipeline, a
   secrets-management gap, cross-identity IAM permission issues, a
   networking/security-group misconfiguration, a Docker/uvicorn
   import-path issue, an unexplained file silently dropped from a build
   context, a missing CloudWatch log-group permission, a genuine SDK
-  version incompatibility, and a wrong deployment script for the
+  version incompatibility (twice, including a container that installed a different
+  library version than the one tested), and a wrong deployment script for the
   actual target environment. Each was verified fixed using direct
   evidence (AWS CLI output, or inspecting a built container's actual
   filesystem), not assumed from success.
@@ -471,6 +484,33 @@ non-persistent storage, and the free GPU tier's quota was confirmed
 exhausted, requiring real compute units to be purchased to continue
 same-day.
 
+### "Tell me about finding a bug your tests couldn't catch"
+*The insurance "expiration date" (prepaid expense project).* The tool had
+done very well on made-up invoices, but none of them used the word
+"expires". On the first real insurance bill, the policy ran from 05/17/2026
+to a stated expiration date of 05/17/2027, and the tool counted that last
+day as covered: 366 days instead of 365. The total was right, but months
+were off by cents and the last month by about $2. My first fix asked the
+model to subtract the day. On the real bill it subtracted the day but kept
+the wrong year, and the tool's own "end before start" check caught it and
+sent the bill to review, so nothing was booked. The working fix was to have
+the model copy the date as written and set a flag, and let code subtract the
+day, the same lesson as an earlier end-date problem: do not ask the model to
+do arithmetic. I reported honestly that the fix was confirmed on one real
+bill and unit tests, not on a fresh set. I also had told the person the first
+schedule was right before I had checked it, which I owned and corrected.
+
+### "Tell me about a time you wasted time or money and what you changed"
+*Repeat evaluation runs (prepaid expense project).* Early on, evaluation
+runs were repeated on the same files, a stale copy of the code was run, and
+there was no limit on API calls, so a lot of money and time went on
+duplicate work. The changes were concrete: an on-disk cache so the same
+request is never paid for twice, a hard cap on live calls, a pre-flight
+check that prints the worst-case number of calls before anything is spent, a
+usage line on every run, a code-version stamp to catch out-of-date files, and
+a rule that tests must pass before any paid run. The 48-photo fair run used
+139 live calls, and a cheaper real-bill test used 10.
+
 ---
 
 ## Where each project's full write-up lives
@@ -485,14 +525,13 @@ same-day.
 - **Compliance-Aware AI Guardrails**: [github.com/lordadrianbold/ai-guardrails-eval](https://github.com/lordadrianbold/ai-guardrails-eval)
 - **Journal Entry Classifier + LayoutLMv2**: [github.com/lordadrianbold/journal-entry-classifier](https://github.com/lordadrianbold/journal-entry-classifier)
 - **Multimodal Receipt Processing**: [github.com/lordadrianbold/multimodal-receipt-processing](https://github.com/lordadrianbold/multimodal-receipt-processing)
+- **Prepaid Expense Identification & Amortization**: [github.com/lordadrianbold/prepaid-expense-project](https://github.com/lordadrianbold/prepaid-expense-project)
 
 Double-check these URLs match your actual repo names exactly.
 
 Each project's `notes.md` is the detailed, week-by-week technical
 record. Each `README.md` is the front-door summary a reviewer sees
 first.
-
-
 
 
 
